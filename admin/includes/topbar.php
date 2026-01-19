@@ -1,6 +1,10 @@
-<header class="bg-white shadow px-6 py-4 flex justify-between">
-    <span class="font-semibold">
-        <?php echo htmlspecialchars($page->getTitle(), ENT_QUOTES); ?>
-    </span>
-    <span class="text-sm text-gray-600">Admin</span>
-</header>
+<?php
+if (!isset($title)) {
+    $title = 'MiniCMS Pro';
+}
+?>
+
+<div class="flex items-center justify-between bg-white border-b px-6 py-4">
+    <h1 class="text-xl font-semibold"><?php echo $title; ?></h1>
+    <div class="text-sm text-gray-600">Admin</div>
+</div>

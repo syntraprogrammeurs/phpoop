@@ -1,8 +1,8 @@
 <?php
-declare(strict_types=1);
 
-namespace Admin\Services;
-class StatsService
+namespace Admin\Models;
+
+class StatsModel
 {
     public function getStats(): array
     {

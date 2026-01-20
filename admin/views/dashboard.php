@@ -1,9 +1,10 @@
 <?php
 declare(strict_types=1);
+
 ?>
 <section class="p-6">
 
-    <div class="grid grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-4 gap-6 mb-8">
         <div class="bg-white p-6 rounded shadow">
             <p class="text-gray-500 text-sm">Posts</p>
             <p class="text-2xl font-bold"><?php echo $stats['posts']; ?></p>
@@ -17,6 +18,10 @@ declare(strict_types=1);
         <div class="bg-white p-6 rounded shadow">
             <p class="text-gray-500 text-sm">Views</p>
             <p class="text-2xl font-bold"><?php echo $stats['views']; ?></p>
+        </div>
+        <div class="bg-white p-6 rounded shadow">
+            <p class="text-gray-500 text-sm">Views</p>
+            <p class="text-2xl font-bold"><?php echo $stats['comments']; ?></p>
         </div>
     </div>
 

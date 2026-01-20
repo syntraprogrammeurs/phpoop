@@ -3,16 +3,16 @@ declare(strict_types=1);
 
 namespace Admin\Controllers;
 
-use Admin\Services\StatsService;
+use Admin\Models\StatsModel;
 
 class DashboardController
 {
-    private StatsService $statsService;
+    private StatsModel $statsModel;
     private string $title = 'Dashboard';
 
-    public function __construct(StatsService $statsService)
+    public function __construct(StatsModel $statsModel)
     {
-        $this->statsService = $statsService;
+        $this->statsModel = $statsModel;
     }
 
     public function getTitle(): string
@@ -23,7 +23,7 @@ class DashboardController
     public function index(): void
     {
         $title = $this->getTitle();
-        $stats = $this->statsService->getStats();
+        $stats = $this->statsModel->getStats();
 
         require __DIR__ . '/../../../views/dashboard.php';
     }

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Admin\Controllers;
 
+use Admin\Core\View;
 use Admin\Models\StatsModel;
 
 class DashboardController
@@ -10,21 +11,35 @@ class DashboardController
     private StatsModel $statsModel;
     private string $title = 'Dashboard';
 
+    /**
+     * __construct()
+     *
+     * Doel:
+     * Bewaart StatsModel zodat index() stats kan ophalen.
+     */
     public function __construct(StatsModel $statsModel)
     {
         $this->statsModel = $statsModel;
     }
 
-    public function getTitle(): string
-    {
-        return $this->title;
-    }
-
+    /**
+     * index()
+     *
+     * Doel:
+     * Toont het dashboard.
+     *
+     * Werking:
+     * 1) Vraagt stats op via het model.
+     * 2) Rendert dashboard.php via View::render().
+     * 3) Geeft $title en $stats door aan de view.
+     */
     public function index(): void
     {
-        $title = $this->getTitle();
         $stats = $this->statsModel->getStats();
 
-        require __DIR__ . '/../../../views/dashboard.php';
+        View::render('dashboard.php', [
+            'title' => $this->title,
+            'stats' => $stats,
+        ]);
     }
 }

@@ -1,76 +1,57 @@
 <?php
 declare(strict_types=1);
 
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
-
 require __DIR__ . '/autoload.php';
 
 use Admin\Core\Router;
 use Admin\Controllers\DashboardController;
 use Admin\Controllers\PostsController;
+use Admin\Controllers\ErrorController;
 use Admin\Models\StatsModel;
-use Admin\Models\PostsModel;
+use Admin\Repositories\PostsRepository;
 
-// URI ophalen
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-// Base path strippen (pas aan als je projectmap anders heet)
 $basePath = '/minicms/admin';
 if (str_starts_with($uri, $basePath)) {
     $uri = substr($uri, strlen($basePath));
 }
 
-// Normaliseren
 $uri = rtrim($uri, '/');
 $uri = $uri === '' ? '/' : $uri;
 
-// HTTP method
 $method = $_SERVER['REQUEST_METHOD'];
 
-// Router
 $router = new Router();
 
 /**
- * GET routes
+ * setNotFoundHandler()
+ *
+ * Doel:
+ * Zorgt dat elke onbekende URL een nette 404 pagina krijgt via ErrorController.
  */
-$router->get('/', function (): void {
-    $controller = new DashboardController(new StatsModel());
-    $title = $controller->getTitle();
-
-    require __DIR__ . '/includes/header.php';
-    require __DIR__ . '/includes/sidebar.php';
-
-    echo '<main class="flex-1">';
-    require __DIR__ . '/includes/topbar.php';
-    $controller->index();
-    echo '</main>';
-
-    require __DIR__ . '/includes/footer.php';
-});
-
-$router->get('/posts', function (): void {
-    $controller = new PostsController(new PostsModel());
-    $title = $controller->getTitle();
-
-    require __DIR__ . '/includes/header.php';
-    require __DIR__ . '/includes/sidebar.php';
-
-    echo '<main class="flex-1">';
-    require __DIR__ . '/includes/topbar.php';
-    $controller->index();
-    echo '</main>';
-
-    require __DIR__ . '/includes/footer.php';
+$errorController = new ErrorController();
+$router->setNotFoundHandler(function (string $requestedUri) use ($errorController): void {
+    $errorController->notFound($requestedUri);
 });
 
 /**
- * POST routes (placeholder)
+ * Dashboard
  */
-$router->post('/posts/store', function (): void {
-    // later: controller store + redirect
-    echo 'Post wordt opgeslagen (placeholder)';
+$router->get('/', function (): void {
+    (new DashboardController(new StatsModel()))->index();
 });
 
-// Dispatch
+/**
+ * Posts (database)
+ */
+$router->get('/posts', function (): void {
+    (new PostsController(PostsRepository::make()))->index();
+});
+
+$router->get('/posts/{id}', function (int $id): void {
+    (new PostsController(PostsRepository::make()))->show($id);
+});
+
+
 $router->dispatch($uri, $method);

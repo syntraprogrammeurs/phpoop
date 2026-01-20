@@ -14,7 +14,7 @@ class PostsRepository
      * __construct()
      *
      * Doel:
-     * Bewaart de PDO connectie zodat alle queries via dezelfde connectie lopen.
+     * Bewaart PDO zodat alle queries via dezelfde connectie lopen.
      */
     public function __construct(PDO $pdo)
     {
@@ -26,11 +26,6 @@ class PostsRepository
      *
      * Doel:
      * Haalt alle posts op voor het overzicht.
-     *
-     * Werking:
-     * 1) Voert SELECT query uit.
-     * 2) Sorteert nieuwste eerst.
-     * 3) Geeft array van posts terug.
      */
     public function getAll(): array
     {
@@ -48,12 +43,6 @@ class PostsRepository
      *
      * Doel:
      * Haalt één post op via id.
-     *
-     * Werking:
-     * 1) Prepared statement met :id.
-     * 2) Execute met parameter.
-     * 3) Fetch 1 record.
-     * 4) Return array of null.
      */
     public function find(int $id): ?array
     {
@@ -68,6 +57,27 @@ class PostsRepository
         $post = $stmt->fetch();
 
         return $post === false ? null : $post;
+    }
+
+    /**
+     * create()
+     *
+     * Doel:
+     * Voegt een nieuwe post toe in de database.
+     */
+    public function create(string $title, string $content, string $status): int
+    {
+        $sql = "INSERT INTO posts (title, content, status)
+                VALUES (:title, :content, :status)";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            'title' => $title,
+            'content' => $content,
+            'status' => $status,
+        ]);
+
+        return (int)$this->pdo->lastInsertId();
     }
 
     /**

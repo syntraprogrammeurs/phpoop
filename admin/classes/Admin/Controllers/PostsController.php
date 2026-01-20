@@ -26,7 +26,7 @@ class PostsController
      * index()
      *
      * Doel:
-     * Toont overzicht van posts uit de database.
+     * Toont het overzicht van posts.
      */
     public function index(): void
     {
@@ -42,7 +42,7 @@ class PostsController
      * show()
      *
      * Doel:
-     * Toont één post via id.
+     * Toont één post.
      */
     public function show(int $id): void
     {
@@ -57,5 +57,69 @@ class PostsController
             'title' => 'Post #' . $id,
             'post' => $post,
         ]);
+    }
+
+    /**
+     * create()
+     *
+     * Doel:
+     * Toont het formulier om een nieuwe post aan te maken.
+     */
+    public function create(): void
+    {
+        View::render('post-create.php', [
+            'title' => 'Nieuwe post',
+            'errors' => [],
+            'old' => [
+                'title' => '',
+                'content' => '',
+                'status' => 'draft',
+            ],
+        ]);
+    }
+
+    /**
+     * store()
+     *
+     * Doel:
+     * Verwerkt het formulier (POST) en slaat de post op.
+     */
+    public function store(): void
+    {
+        $title = trim((string)($_POST['title'] ?? ''));
+        $content = trim((string)($_POST['content'] ?? ''));
+        $status = (string)($_POST['status'] ?? 'draft');
+
+        $errors = [];
+
+        if ($title === '') {
+            $errors[] = 'Titel is verplicht.';
+        }
+
+        if ($content === '') {
+            $errors[] = 'Inhoud is verplicht.';
+        }
+
+        if (!in_array($status, ['draft', 'published'], true)) {
+            $errors[] = 'Status moet draft of published zijn.';
+        }
+
+        if (!empty($errors)) {
+            View::render('post-create.php', [
+                'title' => 'Nieuwe post',
+                'errors' => $errors,
+                'old' => [
+                    'title' => $title,
+                    'content' => $content,
+                    'status' => $status,
+                ],
+            ]);
+            return;
+        }
+
+        $this->postsRepository->create($title, $content, $status);
+
+        header('Location: /minicms/admin/posts');
+        exit;
     }
 }

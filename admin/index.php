@@ -43,15 +43,37 @@ $router->get('/', function (): void {
 });
 
 /**
- * Posts (database)
+ * Posts
  */
 $router->get('/posts', function (): void {
     (new PostsController(PostsRepository::make()))->index();
 });
 
+/**
+ * Create form
+ * Zonder deze route krijg je 404 op /posts/create.
+ */
+$router->get('/posts/create', function (): void {
+    (new PostsController(PostsRepository::make()))->create();
+});
+
+/**
+ * Store post (POST)
+ * Zonder deze route kan het formulier niet opslaan.
+ */
+$router->post('/posts/store', function (): void {
+    (new PostsController(PostsRepository::make()))->store();
+});
+
+/**
+ * Show single post
+ * Deze route moet onder /posts/create staan.
+ */
 $router->get('/posts/{id}', function (int $id): void {
     (new PostsController(PostsRepository::make()))->show($id);
 });
+
+
 
 
 $router->dispatch($uri, $method);

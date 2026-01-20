@@ -11,6 +11,8 @@ use Admin\Controllers\DashboardController;
 use Admin\Controllers\PostsController;
 use Admin\Models\StatsModel;
 use Admin\Models\PostsModel;
+use Admin\Controllers\UsersController;
+use Admin\Models\UsersModel;
 
 // 1) URI ophalen (zonder querystring)
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -47,6 +49,21 @@ $router->add('/', function (): void {
 // Route: posts
 $router->add('/posts', function (): void {
     $controller = new PostsController(new PostsModel());
+    $title = $controller->getTitle();
+
+    require __DIR__ . '/includes/header.php';
+    require __DIR__ . '/includes/sidebar.php';
+
+    echo '<main class="flex-1">';
+    require __DIR__ . '/includes/topbar.php';
+    $controller->index();
+    echo '</main>';
+
+    require __DIR__ . '/includes/footer.php';
+});
+// Route: users
+$router->add('/users', function (): void {
+    $controller = new UsersController(new UsersModel());
     $title = $controller->getTitle();
 
     require __DIR__ . '/includes/header.php';

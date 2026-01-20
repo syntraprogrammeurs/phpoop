@@ -8,8 +8,6 @@
         <a href="/minicms/admin/posts" class="block text-gray-300 hover:text-white">
             Posts
         </a>
-        <a href="/minicms/admin/users" class="block text-gray-300 hover:text-white">
-            Users
-        </a>
+
     </nav>
 </aside>

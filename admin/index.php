@@ -11,27 +11,30 @@ use Admin\Controllers\DashboardController;
 use Admin\Controllers\PostsController;
 use Admin\Models\StatsModel;
 use Admin\Models\PostsModel;
-use Admin\Controllers\UsersController;
-use Admin\Models\UsersModel;
 
-// 1) URI ophalen (zonder querystring)
+// URI ophalen
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-// 2) Base path verwijderen: project draait in /minicms-pro en admin in /admin
+// Base path strippen (pas aan als je projectmap anders heet)
 $basePath = '/minicms/admin';
 if (str_starts_with($uri, $basePath)) {
     $uri = substr($uri, strlen($basePath));
 }
 
-// 3) Normaliseren: '' -> '/', '/posts/' -> '/posts'
+// Normaliseren
 $uri = rtrim($uri, '/');
 $uri = $uri === '' ? '/' : $uri;
 
-// 4) Router maken
+// HTTP method
+$method = $_SERVER['REQUEST_METHOD'];
+
+// Router
 $router = new Router();
 
-// Route: dashboard
-$router->add('/', function (): void {
+/**
+ * GET routes
+ */
+$router->get('/', function (): void {
     $controller = new DashboardController(new StatsModel());
     $title = $controller->getTitle();
 
@@ -46,8 +49,7 @@ $router->add('/', function (): void {
     require __DIR__ . '/includes/footer.php';
 });
 
-// Route: posts
-$router->add('/posts', function (): void {
+$router->get('/posts', function (): void {
     $controller = new PostsController(new PostsModel());
     $title = $controller->getTitle();
 
@@ -61,21 +63,14 @@ $router->add('/posts', function (): void {
 
     require __DIR__ . '/includes/footer.php';
 });
-// Route: users
-$router->add('/users', function (): void {
-    $controller = new UsersController(new UsersModel());
-    $title = $controller->getTitle();
 
-    require __DIR__ . '/includes/header.php';
-    require __DIR__ . '/includes/sidebar.php';
-
-    echo '<main class="flex-1">';
-    require __DIR__ . '/includes/topbar.php';
-    $controller->index();
-    echo '</main>';
-
-    require __DIR__ . '/includes/footer.php';
+/**
+ * POST routes (placeholder)
+ */
+$router->post('/posts/store', function (): void {
+    // later: controller store + redirect
+    echo 'Post wordt opgeslagen (placeholder)';
 });
 
-// 5) Dispatch
-$router->dispatch($uri);
+// Dispatch
+$router->dispatch($uri, $method);

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 <section class="p-6">
     <div class="bg-white p-6 rounded shadow">
-        <h2 class="text-xl font-bold mb-4">Posts overzicht</h2>
+        <h2 class="text-xl font-bold mb-4">Posts overzicht - <?php echo $title; ?></h2>
 
         <table class="w-full text-sm">
             <thead>
@@ -19,7 +19,7 @@ declare(strict_types=1);
             <?php foreach ($posts as $post): ?>
                 <tr class="border-b">
                     <td class="py-2">
-                        <a class="underline" href="/minicms-pro/admin/posts/<?php echo (int)$post['id']; ?>">
+                        <a class="underline" href="/minicms/admin/posts/<?php echo (int)$post['id']; ?>">
                             <?php echo htmlspecialchars((string)$post['title'], ENT_QUOTES); ?>
                         </a>
                     </td>

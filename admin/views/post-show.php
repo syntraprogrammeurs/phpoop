@@ -18,7 +18,7 @@ declare(strict_types=1);
         </div>
 
         <div class="mt-6">
-            <a class="underline" href="/minicms-pro/admin/posts">Terug naar overzicht</a>
+            <a class="underline" href="/minicms/admin/posts">Terug naar overzicht</a>
         </div>
     </div>
 </section>

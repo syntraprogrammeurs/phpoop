@@ -41,4 +41,6 @@ $router->get('/posts/{id}', function (int $id): void {
     (new PostsController(new PostsModel()))->show($id);
 });
 
+/* Users*/
+
 $router->dispatch($uri, $method);

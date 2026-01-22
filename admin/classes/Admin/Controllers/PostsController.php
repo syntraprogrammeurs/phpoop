@@ -15,8 +15,7 @@ class PostsController
      * __construct()
      *
      * Doel:
-     * De controller krijgt een PostsModel binnen en bewaart dit.
-     * Daardoor kan index() en show() altijd posts ophalen via het model.
+     * Bewaart PostsModel zodat we posts kunnen ophalen.
      */
     public function __construct(PostsModel $postsModel)
     {
@@ -27,12 +26,7 @@ class PostsController
      * index()
      *
      * Doel:
-     * Toont het overzicht van alle posts.
-     *
-     * Werking:
-     * 1) Vraagt alle posts op via het model.
-     * 2) Rendert de view posts.php via View::render().
-     * 3) Geeft $title en $posts door aan de view.
+     * Toont overzicht van alle posts.
      */
     public function index(): void
     {
@@ -48,20 +42,17 @@ class PostsController
      * show()
      *
      * Doel:
-     * Toont één post op basis van het id uit de URL.
+     * Toont één post op basis van id uit de URL.
      *
-     * Werking:
-     * 1) Vraagt de post op via het model.
-     * 2) Als de post niet bestaat: 404 en stoppen.
-     * 3) Als de post bestaat: render post-show.php en geef $post door.
+     * Nieuw in LES 5.3:
+     * - Als post niet bestaat, tonen we de centrale 404 pagina via ErrorController.
      */
     public function show(int $id): void
     {
         $post = $this->postsModel->find($id);
 
         if ($post === null) {
-            http_response_code(404);
-            echo '<h1>404 - Post niet gevonden</h1>';
+            (new ErrorController())->notFound('/posts/' . $id);
             return;
         }
 

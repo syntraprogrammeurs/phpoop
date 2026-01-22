@@ -6,6 +6,7 @@ require __DIR__ . '/autoload.php';
 use Admin\Core\Router;
 use Admin\Controllers\DashboardController;
 use Admin\Controllers\PostsController;
+use Admin\Controllers\ErrorController;
 use Admin\Models\StatsModel;
 use Admin\Models\PostsModel;
 
@@ -24,6 +25,17 @@ $method = $_SERVER['REQUEST_METHOD'];
 $router = new Router();
 
 /**
+ * setNotFoundHandler()
+ *
+ * Doel:
+ * - Zorgt dat elke onbekende URL een nette 404 pagina krijgt via ErrorController.
+ */
+$errorController = new ErrorController();
+$router->setNotFoundHandler(function (string $requestedUri) use ($errorController): void {
+    $errorController->notFound($requestedUri);
+});
+
+/**
  * Dashboard
  */
 $router->get('/', function (): void {
@@ -40,7 +52,5 @@ $router->get('/posts', function (): void {
 $router->get('/posts/{id}', function (int $id): void {
     (new PostsController(new PostsModel()))->show($id);
 });
-
-/* Users*/
 
 $router->dispatch($uri, $method);

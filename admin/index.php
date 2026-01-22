@@ -9,6 +9,7 @@ use Admin\Controllers\PostsController;
 use Admin\Controllers\ErrorController;
 use Admin\Models\StatsModel;
 use Admin\Models\PostsModel;
+use Admin\Repositories\PostsRepository;
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
@@ -46,11 +47,12 @@ $router->get('/', function (): void {
  * Posts
  */
 $router->get('/posts', function (): void {
-    (new PostsController(new PostsModel()))->index();
+    (new PostsController(PostsRepository::make()))->index();
 });
 
 $router->get('/posts/{id}', function (int $id): void {
-    (new PostsController(new PostsModel()))->show($id);
+    (new PostsController(PostsRepository::make()))->show($id);
 });
+
 
 $router->dispatch($uri, $method);

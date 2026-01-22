@@ -23,7 +23,7 @@ declare(strict_types=1);
                             <?php echo htmlspecialchars((string)$post['title'], ENT_QUOTES); ?>
                         </a>
                     </td>
-                    <td><?php echo htmlspecialchars((string)$post['date'], ENT_QUOTES); ?></td>
+                    <td><?php echo htmlspecialchars((string)$post['created_at'], ENT_QUOTES); ?></td>
                     <td><?php echo htmlspecialchars((string)$post['status'], ENT_QUOTES); ?></td>
                 </tr>
             <?php endforeach; ?>

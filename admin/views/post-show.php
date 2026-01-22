@@ -14,7 +14,7 @@ declare(strict_types=1);
 
         <div class="text-sm text-gray-600">
             <span class="mr-4">Status: <?php echo htmlspecialchars((string)$post['status'], ENT_QUOTES); ?></span>
-            <span>Datum: <?php echo htmlspecialchars((string)$post['date'], ENT_QUOTES); ?></span>
+            <span>Datum: <?php echo htmlspecialchars((string)$post['created_at'], ENT_QUOTES); ?></span>
         </div>
 
         <div class="mt-6">

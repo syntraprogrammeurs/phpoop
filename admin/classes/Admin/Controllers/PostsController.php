@@ -4,33 +4,33 @@ declare(strict_types=1);
 namespace Admin\Controllers;
 
 use Admin\Core\View;
-use Admin\Models\PostsModel;
+use Admin\Repositories\PostsRepository;
 
 class PostsController
 {
-    private PostsModel $postsModel;
+    private PostsRepository $postsRepository;
     private string $title = 'Posts';
 
     /**
      * __construct()
      *
      * Doel:
-     * Bewaart PostsModel zodat we posts kunnen ophalen.
+     * Ontvangt de repository en bewaart die.
      */
-    public function __construct(PostsModel $postsModel)
+    public function __construct(PostsRepository $postsRepository)
     {
-        $this->postsModel = $postsModel;
+        $this->postsRepository = $postsRepository;
     }
 
     /**
      * index()
      *
      * Doel:
-     * Toont overzicht van alle posts.
+     * Toont overzicht van posts uit de database.
      */
     public function index(): void
     {
-        $posts = $this->postsModel->getAll();
+        $posts = $this->postsRepository->getAll();
 
         View::render('posts.php', [
             'title' => $this->title,
@@ -42,14 +42,11 @@ class PostsController
      * show()
      *
      * Doel:
-     * Toont één post op basis van id uit de URL.
-     *
-     * Nieuw in LES 5.3:
-     * - Als post niet bestaat, tonen we de centrale 404 pagina via ErrorController.
+     * Toont één post via id.
      */
     public function show(int $id): void
     {
-        $post = $this->postsModel->find($id);
+        $post = $this->postsRepository->find($id);
 
         if ($post === null) {
             (new ErrorController())->notFound('/posts/' . $id);

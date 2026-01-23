@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 <section class="p-6">
     <div class="bg-white p-6 rounded shadow">
+
+
         <h2 class="text-2xl font-bold mb-4">
             <?php echo htmlspecialchars((string)$post['title'], ENT_QUOTES); ?>
         </h2>
@@ -19,6 +21,9 @@ declare(strict_types=1);
 
         <div class="mt-6">
             <a class="underline" href="/minicms/admin/posts">Terug naar overzicht</a>
+            <a class="underline" href="/minicms/admin/posts/<?php echo (int)$post['id']; ?>/edit">
+                Bewerken
+            </a>
         </div>
     </div>
 </section>

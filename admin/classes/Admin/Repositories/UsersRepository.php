@@ -14,7 +14,7 @@ class UsersRepository
      * __construct()
      *
      * Doel:
-     * Bewaart PDO zodat we user-queries kunnen uitvoeren.
+     * Bewaart PDO zodat we user-queries kunnen doen.
      */
     public function __construct(PDO $pdo)
     {
@@ -22,23 +22,43 @@ class UsersRepository
     }
 
     /**
+     * getAll()
+     *
+     * Doel:
+     * Haalt alle users op voor het admin-overzicht.
+     *
+     * Werking:
+     * - JOIN roles om role_name te tonen.
+     * - Geen WHERE op email: dit is een lijst van alle users.
+     */
+    public function getAll(): array
+    {
+        $sql = "SELECT u.id, u.email, u.name, u.is_active, r.name AS role_name
+                FROM users u
+                JOIN roles r ON r.id = u.role_id
+                ORDER BY u.id ASC";
+
+        return $this->pdo->query($sql)->fetchAll();
+    }
+
+    /**
      * findByEmail()
      *
      * Doel:
-     * Zoekt een user op via email en haalt ook de rolnaam op.
+     * Zoekt 1 actieve user op via email (login).
      *
      * Werking:
-     * 1) SELECT user velden.
-     * 2) JOIN roles om roles.name als role_name mee te geven.
-     * 3) Prepared statement met :email.
-     * 4) fetch() -> array of null.
+     * - prepared statement met :email
+     * - AND u.is_active = 1 blokkeert gedeactiveerde users
+     * - JOIN roles om role_name mee te geven
      */
     public function findByEmail(string $email): ?array
     {
-        $sql = "SELECT u.id, u.email, u.password_hash, u.name, r.name AS role_name
+        $sql = "SELECT u.id, u.email, u.password_hash, u.name, u.is_active, r.name AS role_name
                 FROM users u
                 JOIN roles r ON r.id = u.role_id
                 WHERE u.email = :email
+                AND u.is_active = 1
                 LIMIT 1";
 
         $stmt = $this->pdo->prepare($sql);
@@ -47,6 +67,49 @@ class UsersRepository
         $user = $stmt->fetch();
 
         return $user === false ? null : $user;
+    }
+
+    /**
+     * create()
+     *
+     * Doel:
+     * Maakt een nieuwe user aan met gehasht wachtwoord.
+     *
+     * Werking:
+     * - password_hash() maakt veilige hash
+     * - INSERT in users tabel
+     */
+    public function create(string $email, string $name, string $plainPassword, int $roleId): void
+    {
+        $sql = "INSERT INTO users (email, name, password_hash, role_id, is_active)
+                VALUES (:email, :name, :hash, :role_id, 1)";
+
+        $hash = password_hash($plainPassword, PASSWORD_DEFAULT);
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            'email' => $email,
+            'name' => $name,
+            'hash' => $hash,
+            'role_id' => $roleId,
+        ]);
+    }
+
+    /**
+     * disable()
+     *
+     * Doel:
+     * Blokkeert een user door is_active op 0 te zetten.
+     */
+    public function disable(int $id): void
+    {
+        $sql = "UPDATE users
+                SET is_active = 0
+                WHERE id = :id
+                LIMIT 1";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['id' => $id]);
     }
 
     /**

@@ -5,6 +5,8 @@ namespace Admin\Controllers;
 
 use Admin\Core\View;
 Use Admin\Core\Auth;
+use Admin\Core\Flash;
+
 use Admin\Repositories\UsersRepository;
 
 class AuthController
@@ -102,10 +104,12 @@ class AuthController
         }
 
         /**
-         * Sla user-id op in de session
-         * zodat de gebruiker ingelogd blijft.
+         * Bewaar user_id en role_name zodat we autorisatiechecks kunnen doen.
          */
         $_SESSION['user_id'] = (int)$user['id'];
+        $_SESSION['user_role'] = (string)$user['role_name'];
+
+        Flash::set('Je bent succesvol ingelogd.');
 
         header('Location: /minicms/admin');
         exit;
@@ -120,6 +124,7 @@ class AuthController
     public function logout(): void
     {
         Auth::logout();
+        Flash::set('Je bent uitgelogd.');
 
         header('Location: /minicms/admin/login');
         exit;

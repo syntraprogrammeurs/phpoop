@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Admin\Controllers;
 
 use Admin\Core\View;
+use Admin\Core\Flash;
 use Admin\Repositories\PostsRepository;
 
 class PostsController
@@ -118,6 +119,7 @@ class PostsController
         }
 
         $this->postsRepository->create($title, $content, $status);
+        Flash::set('Post succesvol aangemaakt.');
 
         header('Location: /minicms/admin/posts');
         exit;
@@ -203,6 +205,7 @@ class PostsController
         }
 
         $this->postsRepository->update($id, $title, $content, $status);
+        Flash::set('Post succesvol bijgewerkt.');
 
         header('Location: /minicms/admin/posts');
         exit;
@@ -255,8 +258,12 @@ class PostsController
 
         $this->postsRepository->delete($id);
 
+
+        Flash::set('Post succesvol verwijderd.');
+
         header('Location: /minicms/admin/posts');
         exit;
+
     }
 
 }

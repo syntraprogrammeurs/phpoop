@@ -14,7 +14,7 @@ class UsersRepository
      * __construct()
      *
      * Doel:
-     * Bewaart PDO zodat we user-queries kunnen doen.
+     * Bewaart PDO zodat we user-queries kunnen uitvoeren.
      */
     public function __construct(PDO $pdo)
     {
@@ -25,18 +25,20 @@ class UsersRepository
      * findByEmail()
      *
      * Doel:
-     * Haalt een user op via email.
+     * Zoekt een user op via email en haalt ook de rolnaam op.
      *
      * Werking:
-     * 1) Prepared SELECT met :email
-     * 2) execute() met parameter
-     * 3) fetch() -> user array of null
+     * 1) SELECT user velden.
+     * 2) JOIN roles om roles.name als role_name mee te geven.
+     * 3) Prepared statement met :email.
+     * 4) fetch() -> array of null.
      */
     public function findByEmail(string $email): ?array
     {
-        $sql = "SELECT id, email, password_hash, name, role
-                FROM users
-                WHERE email = :email
+        $sql = "SELECT u.id, u.email, u.password_hash, u.name, r.name AS role_name
+                FROM users u
+                JOIN roles r ON r.id = u.role_id
+                WHERE u.email = :email
                 LIMIT 1";
 
         $stmt = $this->pdo->prepare($sql);
@@ -44,14 +46,14 @@ class UsersRepository
 
         $user = $stmt->fetch();
 
-        return $user === false ?null : $user;
+        return $user === false ? null : $user;
     }
 
     /**
      * make()
      *
      * Doel:
-     * Factory method om repository te maken met standaard connectie.
+     * Factory method om repository snel te maken met standaard connectie.
      */
     public static function make(): self
     {

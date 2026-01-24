@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
-
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
 /**
  * Start de PHP session.
  * Zonder dit werkt $_SESSION niet.
  */
 session_start();
-
 
 require __DIR__ . '/autoload.php';
 
@@ -104,16 +104,26 @@ $router->get('/posts/{id}/edit', function (int $id): void {
 $router->post('/posts/{id}/update', function (int $id): void {
     (new PostsController(PostsRepository::make()))->update($id);
 });
-/**
- * Delete (confirm + action)
- */
+
+
 $router->get('/posts/{id}/delete', function (int $id): void {
+    if (!Auth::isAdmin()) {
+        header('Location: /minicms/admin/posts');
+        exit;
+    }
+
     (new PostsController(PostsRepository::make()))->deleteConfirm($id);
 });
 
 $router->post('/posts/{id}/delete', function (int $id): void {
+    if (!Auth::isAdmin()) {
+        header('Location: /minicms/admin/posts');
+        exit;
+    }
+
     (new PostsController(PostsRepository::make()))->delete($id);
 });
+
 
 
 /**

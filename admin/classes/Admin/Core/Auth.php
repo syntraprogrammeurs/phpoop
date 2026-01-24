@@ -10,9 +10,6 @@ class Auth
      *
      * Doel:
      * Controleert of er een user is ingelogd.
-     *
-     * Werking:
-     * - Checkt of $_SESSION['user_id'] bestaat.
      */
     public static function check(): bool
     {
@@ -20,31 +17,36 @@ class Auth
     }
 
     /**
-     * userId()
+     * role()
      *
      * Doel:
-     * Geeft het id van de ingelogde gebruiker terug.
+     * Geeft de rol van de ingelogde user terug.
      */
-    public static function userId(): ?int
+    public static function role(): ?string
     {
-        return isset($_SESSION['user_id'])
-            ? (int)$_SESSION['user_id']
-            : null;
+        return $_SESSION['user_role'] ?? null;
+    }
+
+    /**
+     * isAdmin()
+     *
+     * Doel:
+     * Controleert of de user admin is.
+     */
+    public static function isAdmin(): bool
+    {
+        return self::check() && self::role() === 'admin';
     }
 
     /**
      * logout()
      *
      * Doel:
-     * Logt de gebruiker uit.
-     *
-     * Werking:
-     * - Verwijdert user_id uit session.
-     * - Vernietigt sessie.
+     * Logt uit en vernietigt session.
      */
     public static function logout(): void
     {
-        unset($_SESSION['user_id']);
+        unset($_SESSION['user_id'], $_SESSION['user_role']);
         session_destroy();
     }
 }

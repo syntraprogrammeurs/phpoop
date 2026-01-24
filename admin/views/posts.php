@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 ?>
+<?php use Admin\Core\Auth; ?>
 
 <section class="p-6">
     <div class="bg-white p-6 rounded shadow">
@@ -36,9 +37,12 @@ declare(strict_types=1);
                         <a class="underline" href="/minicms/admin/posts/<?php echo (int)$post['id']; ?>/edit">
                             Bewerken
                         </a>
-                        <a class="underline text-red-600" href="/minicms/admin/posts/<?php echo (int)$post['id']; ?>/delete">
-                            Verwijderen
-                        </a>
+                        <?php if (Auth::isAdmin()): ?>
+                            <a class="underline text-red-600" href="/minicms/admin/posts/<?php echo (int)$post['id']; ?>/delete">
+                                Verwijderen
+                            </a>
+                        <?php endif; ?>
+
                     </td>
                 </tr>
             <?php endforeach; ?>

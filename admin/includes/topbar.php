@@ -1,12 +1,24 @@
 <?php
-if (!isset($title)) {
-    $title = 'MiniCMS Pro';
-}
+declare(strict_types=1);
+
+use Admin\Core\Flash;
+
+/**
+ * Haal een flash message op.
+ * Doel:
+ * - Toon success/error feedback na redirects (PRG pattern).
+ * - De flash wordt automatisch gewist na het ophalen.
+ */
+$flash = Flash::get();
 ?>
 
-<div class="flex items-center justify-between bg-white border-b px-6 py-4">
-    <h1 class="text-xl font-semibold"><?php echo $title; ?></h1>
-    <div class="text-sm text-gray-600">Admin</div>
-
-
-</div>
+<?php if ($flash !== null): ?>
+    <div class="px-6 mt-4">
+        <div class="p-4 rounded border
+            <?php echo ($flash['type'] === 'error')
+            ? 'border-red-200 bg-red-50 text-red-700'
+            : 'border-green-200 bg-green-50 text-green-700'; ?>">
+            <?php echo htmlspecialchars((string)$flash['message'], ENT_QUOTES); ?>
+        </div>
+    </div>
+<?php endif; ?>

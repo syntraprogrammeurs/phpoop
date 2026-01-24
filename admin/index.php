@@ -155,8 +155,24 @@ $router->post('/users/store', function (): void {
     (new UsersController(UsersRepository::make(), RolesRepository::make()))->store();
 });
 
+$router->get('/users/{id}/edit', function (int $id): void {
+    (new UsersController(UsersRepository::make(), RolesRepository::make()))->edit($id);
+});
+
+$router->post('/users/{id}/update', function (int $id): void {
+    (new UsersController(UsersRepository::make(), RolesRepository::make()))->update($id);
+});
+
+$router->post('/users/{id}/reset-password', function (int $id): void {
+    (new UsersController(UsersRepository::make(), RolesRepository::make()))->resetPassword($id);
+});
+
 $router->post('/users/{id}/disable', function (int $id): void {
     (new UsersController(UsersRepository::make(), RolesRepository::make()))->disable($id);
+});
+
+$router->post('/users/{id}/enable', function (int $id): void {
+    (new UsersController(UsersRepository::make(), RolesRepository::make()))->enable($id);
 });
 
 

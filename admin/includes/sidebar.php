@@ -8,6 +8,11 @@
         <a href="/minicms/admin/posts" class="block text-gray-300 hover:text-white">
             Posts
         </a>
+        <form method="post" action="/minicms/admin/logout">
+            <button type="submit" class="underline">
+                Logout
+            </button>
+        </form>
 
     </nav>
 </aside>

@@ -56,7 +56,7 @@ declare(strict_types=1);
                     Opslaan
                 </button>
 
-                <a class="underline" href="/minicms-pro/admin/posts">Annuleren</a>
+                <a class="underline" href="/minicms/admin/posts">Annuleren</a>
             </div>
         </form>
     </div>

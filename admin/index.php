@@ -48,26 +48,38 @@ $router->get('/', function (): void {
 $router->get('/posts', function (): void {
     (new PostsController(PostsRepository::make()))->index();
 });
+
 /**
- * Create form
- * Zonder deze route krijg je 404 op /posts/create.
+ * Create
  */
 $router->get('/posts/create', function (): void {
     (new PostsController(PostsRepository::make()))->create();
 });
 
-/**
- * Store post (POST)
- * Zonder deze route kan het formulier niet opslaan.
- */
 $router->post('/posts/store', function (): void {
     (new PostsController(PostsRepository::make()))->store();
 });
 
+/**
+ * Edit + Update
+ * Deze routes zijn specifieker dan /posts/{id}, dus ze moeten erboven staan.
+ */
+$router->get('/posts/{id}/edit', function (int $id): void {
+    (new PostsController(PostsRepository::make()))->edit($id);
+});
 
+$router->post('/posts/{id}/update', function (int $id): void {
+    (new PostsController(PostsRepository::make()))->update($id);
+});
+
+/**
+ * Show
+ * Deze moet onder edit/update staan.
+ */
 $router->get('/posts/{id}', function (int $id): void {
     (new PostsController(PostsRepository::make()))->show($id);
 });
+
 
 
 $router->dispatch($uri, $method);

@@ -5,7 +5,7 @@ declare(strict_types=1);
 <section class="p-6">
     <div class="bg-white p-6 rounded shadow max-w-xl">
         <h2 class="text-xl font-bold mb-4 text-red-600">
-            Post verwijderen
+            <?php echo htmlspecialchars((string)$title, ENT_QUOTES); ?>
         </h2>
 
         <p class="mb-4">

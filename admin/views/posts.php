@@ -32,9 +32,12 @@ declare(strict_types=1);
                     </td>
                     <td><?php echo htmlspecialchars((string)$post['created_at'], ENT_QUOTES); ?></td>
                     <td><?php echo htmlspecialchars((string)$post['status'], ENT_QUOTES); ?></td>
-                    <td class="text-right">
+                    <td class="text-right space-x-3">
                         <a class="underline" href="/minicms/admin/posts/<?php echo (int)$post['id']; ?>/edit">
                             Bewerken
+                        </a>
+                        <a class="underline text-red-600" href="/minicms/admin/posts/<?php echo (int)$post['id']; ?>/delete">
+                            Verwijderen
                         </a>
                     </td>
                 </tr>

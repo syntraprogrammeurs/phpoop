@@ -122,6 +122,28 @@ class PostsRepository
 
         return (int)$stmt->rowCount();
     }
+    /**
+     * delete()
+     *
+     * Doel:
+     * Verwijdert een post uit de database.
+     *
+     * Werking:
+     * 1) Prepared DELETE met :id.
+     * 2) execute() voert delete uit.
+     * 3) rowCount() toont of er effectief iets verwijderd is.
+     */
+    public function delete(int $id): int
+    {
+        $sql = "DELETE FROM posts
+                WHERE id = :id
+                LIMIT 1";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['id' => $id]);
+
+        return (int)$stmt->rowCount();
+    }
 
     /**
      * make()

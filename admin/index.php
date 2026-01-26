@@ -72,6 +72,14 @@ $router->post('/posts/{id}/update', function (int $id): void {
     (new PostsController(PostsRepository::make()))->update($id);
 });
 
+$router->get('/posts/{id}/delete', function (int $id): void {
+    (new PostsController(PostsRepository::make()))->deleteConfirm($id);
+});
+
+$router->post('/posts/{id}/delete', function (int $id): void {
+    (new PostsController(PostsRepository::make()))->delete($id);
+});
+
 /**
  * Show
  * Deze moet onder edit/update staan.

@@ -207,4 +207,56 @@ class PostsController
         header('Location: /minicms/admin/posts');
         exit;
     }
+    /**
+     * deleteConfirm()
+     *
+     * Doel:
+     * Toont bevestigingspagina voor verwijderen.
+     *
+     * Werking:
+     * 1) Haal post op via id.
+     * 2) Bestaat die niet? Toon 404.
+     * 3) Bestaat die wel? Render confirm view.
+     */
+    public function deleteConfirm(int $id): void
+    {
+        $post = $this->postsRepository->find($id);
+
+        if ($post === null) {
+            (new ErrorController())->notFound('/posts/' . $id . '/delete');
+            return;
+        }
+
+        View::render('post-delete.php', [
+            'title' => 'Post verwijderen',
+            'post' => $post,
+        ]);
+    }
+
+    /**
+     * delete()
+     *
+     * Doel:
+     * Verwijdert de post na bevestiging.
+     *
+     * Werking:
+     * 1) Controleer of post bestaat.
+     * 2) delete() via repository.
+     * 3) Redirect naar overzicht.
+     */
+    public function delete(int $id): void
+    {
+        $post = $this->postsRepository->find($id);
+
+        if ($post === null) {
+            (new ErrorController())->notFound('/posts/' . $id . '/delete');
+            return;
+        }
+
+        $this->postsRepository->delete($id);
+
+        header('Location: /minicms/admin/posts');
+        exit;
+    }
+
 }

@@ -40,6 +40,7 @@ class PostsRepository
 
         $stmt = $this->pdo->query($sql);
 
+
         return $stmt->fetchAll();
     }
 
@@ -69,7 +70,26 @@ class PostsRepository
 
         return $post === false ? null : $post;
     }
+    /**
+     * create()
+     *
+     * Doel:
+     * Voegt een nieuwe post toe in de database.
+     */
+    public function create(string $title, string $content, string $status): int
+    {
+        $sql = "INSERT INTO posts (title, content, status)
+                VALUES (:title, :content, :status)";
 
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            'title' => $title,
+            'content' => $content,
+            'status' => $status,
+        ]);
+
+        return (int)$this->pdo->lastInsertId();
+    }
     /**
      * make()
      *

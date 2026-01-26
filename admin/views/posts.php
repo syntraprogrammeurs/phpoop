@@ -4,7 +4,13 @@ declare(strict_types=1);
 
 <section class="p-6">
     <div class="bg-white p-6 rounded shadow">
-        <h2 class="text-xl font-bold mb-4">Posts overzicht - <?php echo $title; ?></h2>
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-bold">Posts overzicht</h2>
+
+            <a class="underline" href="/minicms/admin/posts/create">
+                + Nieuwe post
+            </a>
+        </div>
 
         <table class="w-full text-sm">
             <thead>
@@ -29,6 +35,5 @@ declare(strict_types=1);
             <?php endforeach; ?>
             </tbody>
         </table>
-
     </div>
 </section>

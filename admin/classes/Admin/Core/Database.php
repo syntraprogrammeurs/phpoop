@@ -50,7 +50,7 @@ class Database
             );
         } catch (PDOException $e) {
             http_response_code(500);
-            echo '<h1>500 - Database connectie mislukt</h1>';
+            echo $e . '<h1>500 - Database connectie mislukt</h1>';
             exit;
         }
 

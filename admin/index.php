@@ -106,10 +106,20 @@ $router->post('/posts/{id}/update', function (int $id): void {
 });
 
 $router->get('/posts/{id}/delete', function (int $id): void {
+    if (!Auth::isAdmin()) {
+        header('Location: /minicms/admin/posts');
+        exit;
+    }
+
     (new PostsController(PostsRepository::make()))->deleteConfirm($id);
 });
 
 $router->post('/posts/{id}/delete', function (int $id): void {
+    if (!Auth::isAdmin()) {
+        header('Location: /minicms/admin/posts');
+        exit;
+    }
+
     (new PostsController(PostsRepository::make()))->delete($id);
 });
 

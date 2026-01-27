@@ -102,10 +102,10 @@ class AuthController
         }
 
         /**
-         * Sla user-id op in de session
-         * zodat de gebruiker ingelogd blijft.
+         * Bewaar user_id en role_name zodat we autorisatiechecks kunnen doen.
          */
         $_SESSION['user_id'] = (int)$user['id'];
+        $_SESSION['user_role'] = (string)$user['role_name'];
 
         header('Location: /minicms/admin');
         exit;

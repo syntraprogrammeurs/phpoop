@@ -1,14 +1,24 @@
 <?php
 declare(strict_types=1);
+/**
+ * Start de PHP session.
+ * Zonder dit werkt $_SESSION niet.
+ */
+session_start();
 
 require __DIR__ . '/autoload.php';
 
+
+use Admin\Core\Auth;
 use Admin\Core\Router;
 use Admin\Controllers\DashboardController;
 use Admin\Controllers\PostsController;
 use Admin\Controllers\ErrorController;
 use Admin\Models\StatsModel;
 use Admin\Repositories\PostsRepository;
+use Admin\Controllers\AuthController;
+use Admin\Repositories\UsersRepository;
+
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
@@ -20,6 +30,16 @@ if (str_starts_with($uri, $basePath)) {
 $uri = rtrim($uri, '/');
 $uri = $uri === '' ? '/' : $uri;
 
+/**
+ * Beveilig admin-routes:
+ * als je niet ingelogd bent, ga naar /login
+ */
+$publicRoutes = ['/login'];
+
+if (!Auth::check() && !in_array($uri, $publicRoutes, true)) {
+    header('Location: /minicms/admin/login');
+    exit;
+}
 $method = $_SERVER['REQUEST_METHOD'];
 
 $router = new Router();
@@ -40,6 +60,19 @@ $router->setNotFoundHandler(function (string $requestedUri) use ($errorControlle
  */
 $router->get('/', function (): void {
     (new DashboardController(new StatsModel()))->index();
+});
+/**
+ * Auth
+ */
+$router->get('/login', function (): void {
+    (new AuthController(UsersRepository::make()))->showLogin();
+});
+
+$router->post('/login', function (): void {
+    (new AuthController(UsersRepository::make()))->login();
+});
+$router->post('/logout', function (): void {
+    (new AuthController(UsersRepository::make()))->logout();
 });
 
 /**

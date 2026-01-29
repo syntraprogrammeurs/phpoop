@@ -14,24 +14,12 @@ class UsersController
     private UsersRepository $users;
     private RolesRepository $roles;
 
-    /**
-     * __construct()
-     *
-     * Doel:
-     * Injecteert repositories voor users en roles.
-     */
     public function __construct(UsersRepository $users, RolesRepository $roles)
     {
         $this->users = $users;
         $this->roles = $roles;
     }
 
-    /**
-     * index()
-     *
-     * Doel:
-     * Toont het overzicht van users (admin-only).
-     */
     public function index(): void
     {
         if (!Auth::isAdmin()) {
@@ -45,12 +33,6 @@ class UsersController
         ]);
     }
 
-    /**
-     * create()
-     *
-     * Doel:
-     * Toont het formulier om een user aan te maken (admin-only).
-     */
     public function create(): void
     {
         if (!Auth::isAdmin()) {
@@ -70,12 +52,6 @@ class UsersController
         ]);
     }
 
-    /**
-     * store()
-     *
-     * Doel:
-     * Verwerkt het create user formulier en maakt de user aan (admin-only).
-     */
     public function store(): void
     {
         if (!Auth::isAdmin()) {
@@ -90,21 +66,10 @@ class UsersController
 
         $errors = [];
 
-        if ($email === '') {
-            $errors[] = 'Email is verplicht.';
-        }
-
-        if ($name === '') {
-            $errors[] = 'Naam is verplicht.';
-        }
-
-        if ($password === '') {
-            $errors[] = 'Wachtwoord is verplicht.';
-        }
-
-        if ($roleId <= 0) {
-            $errors[] = 'Kies een rol.';
-        }
+        if ($email === '') { $errors[] = 'Email is verplicht.'; }
+        if ($name === '') { $errors[] = 'Naam is verplicht.'; }
+        if ($password === '') { $errors[] = 'Wachtwoord is verplicht.'; }
+        if ($roleId <= 0) { $errors[] = 'Kies een rol.'; }
 
         if (!empty($errors)) {
             View::render('user-create.php', [
@@ -122,18 +87,127 @@ class UsersController
 
         $this->users->create($email, $name, $password, $roleId);
 
-        Flash::set('Gebruiker aangemaakt.');
-
+        Flash::set('Gebruiker aangemaakt.', 'success');
         header('Location: /minicms/admin/users');
         exit;
     }
 
-    /**
-     * disable()
-     *
-     * Doel:
-     * Blokkeert een user (admin-only).
-     */
+    public function edit(int $id): void
+    {
+        if (!Auth::isAdmin()) {
+            header('Location: /minicms/admin');
+            exit;
+        }
+
+        $user = $this->users->findById($id);
+        if ($user === null) {
+            Flash::set('Gebruiker niet gevonden.', 'error');
+            header('Location: /minicms/admin/users');
+            exit;
+        }
+
+        View::render('user-edit.php', [
+            'title' => 'Gebruiker bewerken',
+            'user' => $user,
+            'roles' => $this->roles->getAll(),
+            'errors' => [],
+            'old' => [
+                'name' => (string)$user['name'],
+                'role_id' => (string)$user['role_id'],
+            ],
+            'pw_errors' => [],
+        ]);
+    }
+
+    public function update(int $id): void
+    {
+        if (!Auth::isAdmin()) {
+            header('Location: /minicms/admin');
+            exit;
+        }
+
+        $user = $this->users->findById($id);
+        if ($user === null) {
+            Flash::set('Gebruiker niet gevonden.', 'error');
+            header('Location: /minicms/admin/users');
+            exit;
+        }
+
+        $name = trim((string)($_POST['name'] ?? ''));
+        $roleId = (int)($_POST['role_id'] ?? 0);
+
+        $errors = [];
+
+        if ($name === '') { $errors[] = 'Naam is verplicht.'; }
+        if ($roleId <= 0) { $errors[] = 'Kies een rol.'; }
+
+        if (!empty($errors)) {
+            View::render('user-edit.php', [
+                'title' => 'Gebruiker bewerken',
+                'user' => $user,
+                'roles' => $this->roles->getAll(),
+                'errors' => $errors,
+                'old' => [
+                    'name' => $name,
+                    'role_id' => (string)$roleId,
+                ],
+                'pw_errors' => [],
+            ]);
+            return;
+        }
+
+        $this->users->update($id, $name, $roleId);
+
+        Flash::set('Gebruiker bijgewerkt.', 'success');
+        header('Location: /minicms/admin/users/' . $id . '/edit');
+        exit;
+    }
+
+    public function resetPassword(int $id): void
+    {
+        if (!Auth::isAdmin()) {
+            header('Location: /minicms/admin');
+            exit;
+        }
+
+        $user = $this->users->findById($id);
+        if ($user === null) {
+            Flash::set('Gebruiker niet gevonden.', 'error');
+            header('Location: /minicms/admin/users');
+            exit;
+        }
+
+        $password = (string)($_POST['password'] ?? '');
+        $confirm = (string)($_POST['password_confirm'] ?? '');
+
+        $pwErrors = [];
+
+        if ($password === '') { $pwErrors[] = 'Wachtwoord is verplicht.'; }
+        if (strlen($password) < 8) { $pwErrors[] = 'Wachtwoord moet minstens 8 tekens zijn.'; }
+        if ($password !== $confirm) { $pwErrors[] = 'Wachtwoorden komen niet overeen.'; }
+
+        if (!empty($pwErrors)) {
+            View::render('user-edit.php', [
+                'title' => 'Gebruiker bewerken',
+                'user' => $user,
+                'roles' => $this->roles->getAll(),
+                'errors' => [],
+                'old' => [
+                    'name' => (string)$user['name'],
+                    'role_id' => (string)$user['role_id'],
+                ],
+                'pw_errors' => $pwErrors,
+            ]);
+            return;
+        }
+
+        $this->users->updatePassword($id, $password);
+
+        Flash::set('Wachtwoord gereset.', 'success');
+        header('Location: /minicms/admin/users/' . $id . '/edit');
+        exit;
+    }
+
     public function disable(int $id): void
     {
         if (!Auth::isAdmin()) {
@@ -144,8 +218,21 @@ class UsersController
         $this->users->disable($id);
 
         Flash::set('Gebruiker geblokkeerd.', 'success');
+        header('Location: /minicms/admin/users/' . $id . '/edit');
+        exit;
+    }
 
-        header('Location: /minicms/admin/users');
+    public function enable(int $id): void
+    {
+        if (!Auth::isAdmin()) {
+            header('Location: /minicms/admin');
+            exit;
+        }
+
+        $this->users->enable($id);
+
+        Flash::set('Gebruiker geactiveerd.', 'success');
+        header('Location: /minicms/admin/users/' . $id . '/edit');
         exit;
     }
 }

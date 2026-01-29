@@ -9,6 +9,7 @@ session_start();
 require __DIR__ . '/autoload.php';
 
 
+use Admin\Controllers\UsersController;
 use Admin\Core\Auth;
 use Admin\Core\Router;
 use Admin\Controllers\DashboardController;
@@ -17,6 +18,7 @@ use Admin\Controllers\ErrorController;
 use Admin\Models\StatsModel;
 use Admin\Repositories\PostsRepository;
 use Admin\Controllers\AuthController;
+use Admin\Repositories\RolesRepository;
 use Admin\Repositories\UsersRepository;
 
 
@@ -74,6 +76,26 @@ $router->post('/login', function (): void {
 $router->post('/logout', function (): void {
     (new AuthController(UsersRepository::make()))->logout();
 });
+
+/**
+ * Users (admin-only)
+ */
+$router->get('/users', function (): void {
+    (new UsersController(UsersRepository::make(), RolesRepository::make()))->index();
+});
+
+$router->get('/users/create', function (): void {
+    (new UsersController(UsersRepository::make(), RolesRepository::make()))->create();
+});
+
+$router->post('/users/store', function (): void {
+    (new UsersController(UsersRepository::make(), RolesRepository::make()))->store();
+});
+
+$router->post('/users/{id}/disable', function (int $id): void {
+    (new UsersController(UsersRepository::make(), RolesRepository::make()))->disable($id);
+});
+
 
 /**
  * Posts

@@ -5,7 +5,7 @@ declare(strict_types=1);
  * Zonder dit werkt $_SESSION niet.
  */
 session_start();
-
+require __DIR__ . '/config/app.php';
 require __DIR__ . '/autoload.php';
 
 
@@ -22,15 +22,17 @@ use Admin\Repositories\RolesRepository;
 use Admin\Repositories\UsersRepository;
 
 
-$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+// Path uit de URL halen (zonder querystring)
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
 
-$basePath = '/minicms/admin';
-if (str_starts_with($uri, $basePath)) {
-    $uri = substr($uri, strlen($basePath));
+// ADMIN_BASE_PATH (/admin) verwijderen uit de URL
+if (str_starts_with($uri, ADMIN_BASE_PATH)) {
+    $uri = substr($uri, strlen(ADMIN_BASE_PATH));
 }
 
-$uri = rtrim($uri, '/');
-$uri = $uri === '' ? '/' : $uri;
+// Trailing slash verwijderen en lege string corrigeren
+$uri = rtrim($uri, '/') ?: '/';
+
 
 /**
  * Beveilig admin-routes:
@@ -39,7 +41,7 @@ $uri = $uri === '' ? '/' : $uri;
 $publicRoutes = ['/login'];
 
 if (!Auth::check() && !in_array($uri, $publicRoutes, true)) {
-    header('Location: /minicms/admin/login');
+    header('Location: /admin/login');
     exit;
 }
 $method = $_SERVER['REQUEST_METHOD'];
@@ -147,7 +149,7 @@ $router->post('/posts/{id}/update', function (int $id): void {
 
 $router->get('/posts/{id}/delete', function (int $id): void {
     if (!Auth::isAdmin()) {
-        header('Location: /minicms/admin/posts');
+        header('Location: /admin/posts');
         exit;
     }
 
@@ -156,7 +158,7 @@ $router->get('/posts/{id}/delete', function (int $id): void {
 
 $router->post('/posts/{id}/delete', function (int $id): void {
     if (!Auth::isAdmin()) {
-        header('Location: /minicms/admin/posts');
+        header('Location: /admin/posts');
         exit;
     }
 

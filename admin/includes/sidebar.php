@@ -2,16 +2,16 @@
     <h2 class="text-xl font-bold mb-6">MiniCMS Pro</h2>
 
     <nav class="space-y-3">
-        <a href="/minicms/admin" class="block text-gray-300 hover:text-white">
+        <a href="/admin" class="block text-gray-300 hover:text-white">
             Dashboard
         </a>
-        <a href="/minicms/admin/posts" class="block text-gray-300 hover:text-white">
+        <a href="/admin/posts" class="block text-gray-300 hover:text-white">
             Posts
         </a>
-        <a href="/minicms/admin/posts/create" class="block text-gray-300 hover:text-white">
+        <a href="/admin/posts/create" class="block text-gray-300 hover:text-white">
             Create Post
         </a>
-        <form method="post" action="/minicms/admin/logout">
+        <form method="post" action="/admin/logout">
             <button type="submit" class="underline">
                 Logout
             </button>

@@ -17,7 +17,7 @@ declare(strict_types=1);
             </div>
         <?php endif; ?>
 
-        <form method="post" action="/minicms/admin/posts/store" class="space-y-4">
+        <form method="post" action="/admin/posts/store" class="space-y-4">
             <div>
                 <label class="block text-sm font-bold mb-1" for="title">Titel</label>
                 <input
@@ -36,7 +36,7 @@ declare(strict_types=1);
                     Opslaan
                 </button>
 
-                <a class="underline" href="/minicms/admin/roles">Annuleren</a>
+                <a class="underline" href="/admin/roles">Annuleren</a>
             </div>
         </form>
     </div>

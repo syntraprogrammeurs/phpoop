@@ -155,4 +155,78 @@ class PostsRepository
     {
         return new self(Database::getConnection());
     }
+
+
+    /**FRONTEND*/
+    /*
+|--------------------------------------------------------------------------
+| Public queries: enkel published
+|--------------------------------------------------------------------------
+| Deze methodes worden gebruikt door de publieke frontend.
+| Ze filteren altijd op status = 'published'.
+*/
+
+    public function getPublishedLatest(int $limit = 5): array
+    {
+        // SQL: enkel published, nieuwste eerst, beperkt via LIMIT
+        $sql = "
+        SELECT id, title, content, created_at
+        FROM posts
+        WHERE status = 'published'
+        ORDER BY created_at DESC
+        LIMIT :limit
+    ";
+
+        // prepare op de bestaande PDO property
+        $stmt = $this->pdo->prepare($sql);
+
+        // LIMIT moet integer zijn
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+
+        // uitvoeren
+        $stmt->execute();
+
+        // fetchAll kan false geven -> we willen altijd array
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
+    public function getPublishedAll(): array
+    {
+        // SQL: alle published posts, nieuwste eerst
+        $sql = "
+        SELECT id, title, content, created_at
+        FROM posts
+        WHERE status = 'published'
+        ORDER BY created_at DESC
+    ";
+
+        // query() kan omdat er geen parameters zijn
+        $stmt = $this->pdo->query($sql);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
+    public function findPublishedById(int $id): ?array
+    {
+        // SQL: één published post
+        $sql = "
+        SELECT id, title, content, created_at
+        FROM posts
+        WHERE id = :id
+          AND status = 'published'
+        LIMIT 1
+    ";
+
+        $stmt = $this->pdo->prepare($sql);
+
+        // execute met array bindt :id
+        $stmt->execute([
+            'id' => $id,
+        ]);
+
+        // fetch geeft array of false
+        $post = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $post ?: null;
+    }
 }

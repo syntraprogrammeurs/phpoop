@@ -1,0 +1,20 @@
+# ------------------------------------------------------------
+# Apache rewrite rules (Front Controller pattern)
+# ------------------------------------------------------------
+# Doel:
+# - /posts en /posts/123 moeten altijd bij public/index.php uitkomen
+# - bestaande files (css/js/images) mogen wel rechtstreeks geladen worden
+# ------------------------------------------------------------
+
+RewriteEngine On
+
+# Als het gevraagde pad een bestaande file is, doe niets
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Als het gevraagde pad een bestaande directory is, doe niets
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Alles anders: stuur door naar index.php
+RewriteRule ^ index.php [L]

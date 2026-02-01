@@ -111,7 +111,8 @@ class AuthController
 
         Flash::set('Je bent succesvol ingelogd.');
 
-        header('Location: /minicms/admin');
+        header('Location: /admin
+');
         exit;
 
     }
@@ -126,7 +127,7 @@ class AuthController
         Auth::logout();
         Flash::set('Je bent uitgelogd.');
 
-        header('Location: /minicms/admin/login');
+        header('Location: /admin/login');
         exit;
     }
 

@@ -20,8 +20,10 @@ declare(strict_types=1);
         </div>
 
         <div class="mt-6">
-            <a class="underline" href="/minicms/admin/posts">Terug naar overzicht</a>
-            <a class="underline" href="/minicms/admin/posts/<?php echo (int)$post['id']; ?>/edit">
+            <a class="underline" href="/admin
+/posts">Terug naar overzicht</a>
+            <a class="underline" href="/admin
+/posts/<?php echo (int)$post['id']; ?>/edit">
                 Bewerken
             </a>
         </div>

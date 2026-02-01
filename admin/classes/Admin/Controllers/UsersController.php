@@ -23,7 +23,8 @@ class UsersController
     public function index(): void
     {
         if (!Auth::isAdmin()) {
-            header('Location: /minicms/admin');
+            header('Location: /admin
+');
             exit;
         }
 
@@ -36,7 +37,8 @@ class UsersController
     public function create(): void
     {
         if (!Auth::isAdmin()) {
-            header('Location: /minicms/admin');
+            header('Location: /admin
+');
             exit;
         }
 
@@ -55,7 +57,8 @@ class UsersController
     public function store(): void
     {
         if (!Auth::isAdmin()) {
-            header('Location: /minicms/admin');
+            header('Location: /admin
+');
             exit;
         }
 
@@ -88,21 +91,24 @@ class UsersController
         $this->users->create($email, $name, $password, $roleId);
 
         Flash::set('Gebruiker aangemaakt.', 'success');
-        header('Location: /minicms/admin/users');
+        header('Location: /admin
+/users');
         exit;
     }
 
     public function edit(int $id): void
     {
         if (!Auth::isAdmin()) {
-            header('Location: /minicms/admin');
+            header('Location: /admin
+');
             exit;
         }
 
         $user = $this->users->findById($id);
         if ($user === null) {
             Flash::set('Gebruiker niet gevonden.', 'error');
-            header('Location: /minicms/admin/users');
+            header('Location: /admin
+/users');
             exit;
         }
 
@@ -122,14 +128,16 @@ class UsersController
     public function update(int $id): void
     {
         if (!Auth::isAdmin()) {
-            header('Location: /minicms/admin');
+            header('Location: /admin
+');
             exit;
         }
 
         $user = $this->users->findById($id);
         if ($user === null) {
             Flash::set('Gebruiker niet gevonden.', 'error');
-            header('Location: /minicms/admin/users');
+            header('Location: /admin
+/users');
             exit;
         }
 
@@ -159,21 +167,24 @@ class UsersController
         $this->users->update($id, $name, $roleId);
 
         Flash::set('Gebruiker bijgewerkt.', 'success');
-        header('Location: /minicms/admin/users/' . $id . '/edit');
+        header('Location: /admin
+/users/' . $id . '/edit');
         exit;
     }
 
     public function resetPassword(int $id): void
     {
         if (!Auth::isAdmin()) {
-            header('Location: /minicms/admin');
+            header('Location: /admin
+');
             exit;
         }
 
         $user = $this->users->findById($id);
         if ($user === null) {
             Flash::set('Gebruiker niet gevonden.', 'error');
-            header('Location: /minicms/admin/users');
+            header('Location: /admin
+/users');
             exit;
         }
 
@@ -204,35 +215,40 @@ class UsersController
         $this->users->updatePassword($id, $password);
 
         Flash::set('Wachtwoord gereset.', 'success');
-        header('Location: /minicms/admin/users/' . $id . '/edit');
+        header('Location: /admin
+/users/' . $id . '/edit');
         exit;
     }
 
     public function disable(int $id): void
     {
         if (!Auth::isAdmin()) {
-            header('Location: /minicms/admin');
+            header('Location: /admin
+');
             exit;
         }
 
         $this->users->disable($id);
 
         Flash::set('Gebruiker geblokkeerd.', 'success');
-        header('Location: /minicms/admin/users/' . $id . '/edit');
+        header('Location: /admin
+/users/' . $id . '/edit');
         exit;
     }
 
     public function enable(int $id): void
     {
         if (!Auth::isAdmin()) {
-            header('Location: /minicms/admin');
+            header('Location: /admin
+');
             exit;
         }
 
         $this->users->enable($id);
 
         Flash::set('Gebruiker geactiveerd.', 'success');
-        header('Location: /minicms/admin/users/' . $id . '/edit');
+        header('Location: /admin
+/users/' . $id . '/edit');
         exit;
     }
 }

@@ -43,6 +43,11 @@ class View
 
         echo '<main class="flex-1">';
         require __DIR__ . '/../../../includes/topbar.php';
+        /**
+         * Flash messages (success/errors)
+         * Wordt op elke pagina getoond, maar verdwijnt na 1 keer (Flash::get).
+         */
+        require __DIR__ . '/../../../views/partials/flash.php';
 
         require $viewPath;
 

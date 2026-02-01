@@ -10,7 +10,8 @@ use Admin\Core\Auth;
             <h2 class="text-xl font-bold">Gebruikers</h2>
 
             <?php if (Auth::isAdmin()): ?>
-                <a class="underline" href="/minicms/admin/users/create">
+                <a class="underline" href="/admin
+/users/create">
                     + Nieuwe gebruiker
                 </a>
             <?php endif; ?>
@@ -35,14 +36,17 @@ use Admin\Core\Auth;
                     <td><?php echo htmlspecialchars((string)$user['role_name'], ENT_QUOTES); ?></td>
                     <td><?php echo ((int)$user['is_active'] === 1) ? 'Actief' : 'Geblokkeerd'; ?></td>
                     <td class="text-right">
-                        <a class="underline mr-4" href="/minicms/admin/users/<?php echo (int)$user['id']; ?>/edit">Bewerk</a>
+                        <a class="underline mr-4" href="/admin
+/users/<?php echo (int)$user['id']; ?>/edit">Bewerk</a>
 
                         <?php if ((int)$user['is_active'] === 1): ?>
-                            <form class="inline" method="post" action="/minicms/admin/users/<?php echo (int)$user['id']; ?>/disable">
+                            <form class="inline" method="post" action="/admin
+/users/<?php echo (int)$user['id']; ?>/disable">
                                 <button class="underline text-red-600" type="submit">Blokkeer</button>
                             </form>
                         <?php else: ?>
-                            <form class="inline" method="post" action="/minicms/admin/users/<?php echo (int)$user['id']; ?>/enable">
+                            <form class="inline" method="post" action="/admin
+/users/<?php echo (int)$user['id']; ?>/enable">
                                 <button class="underline text-green-700" type="submit">Deblokkeer</button>
                             </form>
                         <?php endif; ?>

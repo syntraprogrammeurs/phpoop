@@ -3,36 +3,57 @@ declare(strict_types=1);
 
 namespace Admin\Core;
 
-class Flash
+final class Flash
 {
+    private const KEY = '_flash';
+
     /**
-     * set()
-     * Doel:
-     * - Slaat een boodschap op in de session zodat je ze na een redirect kan tonen.
+     * Slaat een flash value op.
+     * Voorbeelden:
+     * Flash::set('success', 'Post succesvol aangemaakt.');
+     * Flash::set('errors', ['Title is verplicht.']);
+     * Flash::set('old', ['title' => '...', 'content' => '...']);
      */
-    public static function set(string $message, string $type = 'success'): void
+    public static function set(string $key, mixed $value): void
     {
-        $_SESSION['flash'] = [
-            'message' => $message,
-            'type' => $type,
-        ];
+        if (!isset($_SESSION[self::KEY]) || !is_array($_SESSION[self::KEY])) {
+            $_SESSION[self::KEY] = [];
+        }
+
+        $_SESSION[self::KEY][$key] = $value;
     }
 
     /**
-     * get()
-     * Doel:
-     * - Haalt de boodschap op en verwijdert ze direct.
-     * - Daardoor is een flash maar één keer zichtbaar.
+     * Haalt een flash value op en verwijdert hem meteen.
+     * Als de key niet bestaat, return null.
      */
-    public static function get(): ?array
+    public static function get(string $key): mixed
     {
-        if (!isset($_SESSION['flash'])) {
+        if (!isset($_SESSION[self::KEY]) || !is_array($_SESSION[self::KEY])) {
             return null;
         }
 
-        $flash = $_SESSION['flash'];
-        unset($_SESSION['flash']);
+        if (!array_key_exists($key, $_SESSION[self::KEY])) {
+            return null;
+        }
 
-        return $flash;
+        $value = $_SESSION[self::KEY][$key];
+        unset($_SESSION[self::KEY][$key]);
+
+        if (empty($_SESSION[self::KEY])) {
+            unset($_SESSION[self::KEY]);
+        }
+
+        return $value;
+    }
+
+    /**
+     * Checkt of een flash key bestaat (zonder te verwijderen).
+     */
+    public static function has(string $key): bool
+    {
+        return isset($_SESSION[self::KEY])
+            && is_array($_SESSION[self::KEY])
+            && array_key_exists($key, $_SESSION[self::KEY]);
     }
 }

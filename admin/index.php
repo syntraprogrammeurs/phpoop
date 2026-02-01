@@ -7,7 +7,7 @@ ini_set('display_errors', '1');
  * Zonder dit werkt $_SESSION niet.
  */
 session_start();
-
+require __DIR__ . '/config/app.php';
 require __DIR__ . '/autoload.php';
 
 use Admin\Core\Router;
@@ -24,15 +24,16 @@ use Admin\Repositories\RolesRepository;
 
 
 
-$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+// 1) Path uit URL halen (zonder querystring)
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
 
-$basePath = '/minicms/admin';
-if (str_starts_with($uri, $basePath)) {
-    $uri = substr($uri, strlen($basePath));
+// 2) Als URL begint met ADMIN_BASE_PATH, knip dat deel weg
+if (str_starts_with($uri, ADMIN_BASE_PATH)) {
+    $uri = substr($uri, strlen(ADMIN_BASE_PATH));
 }
 
-$uri = rtrim($uri, '/');
-$uri = $uri === '' ? '/' : $uri;
+// 3) Normaliseren: trailing slash weg en lege string wordt '/'
+$uri = rtrim($uri, '/') ?: '/';
 
 /**
  * Beveilig admin-routes:
@@ -41,7 +42,7 @@ $uri = $uri === '' ? '/' : $uri;
 $publicRoutes = ['/login'];
 
 if (!Auth::check() && !in_array($uri, $publicRoutes, true)) {
-    header('Location: /minicms/admin/login');
+    header('Location: /admin/login');
     exit;
 }
 
@@ -110,7 +111,8 @@ $router->post('/posts/{id}/update', function (int $id): void {
 
 $router->get('/posts/{id}/delete', function (int $id): void {
     if (!Auth::isAdmin()) {
-        header('Location: /minicms/admin/posts');
+        header('Location: /admin
+/posts');
         exit;
     }
 
@@ -119,7 +121,8 @@ $router->get('/posts/{id}/delete', function (int $id): void {
 
 $router->post('/posts/{id}/delete', function (int $id): void {
     if (!Auth::isAdmin()) {
-        header('Location: /minicms/admin/posts');
+        header('Location: /admin
+/posts');
         exit;
     }
 

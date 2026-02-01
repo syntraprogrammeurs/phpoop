@@ -1,21 +1,69 @@
-<aside class="w-64 bg-gray-900 text-white p-6">
-    <h2 class="text-xl font-bold mb-6">MiniCMS Pro</h2>
+<?php
+declare(strict_types=1);
 
-    <nav class="space-y-3">
-        <a href="/admin" class="block text-gray-300 hover:text-white">
+/*
+|--------------------------------------------------------------------------
+| Sidebar navigatie (admin)
+|--------------------------------------------------------------------------
+| - Gebruikt REQUEST_URI om actieve links te tonen
+| - Werkt met ADMIN_BASE_PATH (bv. /admin)
+*/
+
+$currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
+$currentPath = rtrim($currentPath, '/') ?: '/';
+
+function isActiveAdmin(string $currentPath, string $targetPath): bool
+{
+    // Exact match
+    if ($currentPath === $targetPath) {
+        return true;
+    }
+
+    // Subroutes matchen (bv. /admin/posts/1/edit hoort bij /admin/posts)
+    if ($targetPath !== ADMIN_BASE_PATH && str_starts_with($currentPath, $targetPath . '/')) {
+        return true;
+    }
+
+    return false;
+}
+
+function sidebarLinkClass(bool $active): string
+{
+    return $active
+        ? 'block rounded px-3 py-2 bg-slate-800 text-white font-semibold'
+        : 'block rounded px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white';
+}
+?>
+
+<aside class="w-64 bg-slate-900 text-white p-6">
+    <h2 class="text-xl font-bold mb-6">MiniCMS</h2>
+
+    <nav class="space-y-2 text-sm">
+        <a href="<?= ADMIN_BASE_PATH ?>"
+           class="<?= sidebarLinkClass(isActiveAdmin($currentPath, ADMIN_BASE_PATH)) ?>">
             Dashboard
         </a>
-        <a href="/admin/posts" class="block text-gray-300 hover:text-white">
+
+        <a href="<?= ADMIN_BASE_PATH ?>/posts"
+           class="<?= sidebarLinkClass(isActiveAdmin($currentPath, ADMIN_BASE_PATH . '/posts')) ?>">
             Posts
         </a>
-        <a href="/admin/posts/create" class="block text-gray-300 hover:text-white">
-            Create Post
-        </a>
-        <form method="post" action="/admin/logout">
-            <button type="submit" class="underline">
-                Logout
-            </button>
-        </form>
 
+        <a href="<?= ADMIN_BASE_PATH ?>/users"
+           class="<?= sidebarLinkClass(isActiveAdmin($currentPath, ADMIN_BASE_PATH . '/users')) ?>">
+            Users
+        </a>
+
+        <a href="<?= ADMIN_BASE_PATH ?>/roles"
+           class="<?= sidebarLinkClass(isActiveAdmin($currentPath, ADMIN_BASE_PATH . '/roles')) ?>">
+            Roles
+        </a>
+
+        <hr class="border-slate-700 my-4">
+
+        <a href="/"
+           class="block rounded px-3 py-2 text-slate-400 hover:text-white">
+            Naar site
+        </a>
     </nav>
 </aside>

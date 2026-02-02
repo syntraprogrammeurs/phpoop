@@ -10,6 +10,8 @@ declare(strict_types=1);
 */
 
 ob_start();
+
+$defaultImg = 'https://images.unsplash.com/photo-1526481280695-3c687fd5432c?auto=format&fit=crop&w=1400&q=60';
 ?>
 
     <header class="mb-8">
@@ -18,30 +20,55 @@ ob_start();
     </header>
 
 <?php if (empty($posts)): ?>
-    <div class="rounded-xl border border-white/10 bg-white/5 p-6 text-slate-300">
+    <div class="rounded-2xl border border-white/10 bg-white/5 p-6 text-slate-300">
         Nog geen gepubliceerde posts.
     </div>
 <?php else: ?>
-    <div class="space-y-4">
+    <div class="grid md:grid-cols-2 gap-6">
         <?php foreach ($posts as $post): ?>
-            <article class="rounded-xl border border-white/10 bg-white/5 p-6">
-                <h2 class="text-xl font-semibold">
-                    <a class="hover:underline" href="/posts/<?= (int)$post['id'] ?>">
-                        <?= htmlspecialchars($post['title']) ?>
-                    </a>
-                </h2>
+            <?php
+            $img = (string)($post['featured_url'] ?? '');
+            if ($img === '') {
+                $img = $defaultImg;
+            }
 
-                <p class="text-sm text-slate-400 mt-2">
-                    <?= htmlspecialchars((string)($post['created_at'] ?? '')) ?>
-                </p>
+            $alt = (string)($post['featured_alt'] ?? '');
+            if ($alt === '') {
+                $alt = (string)($post['title'] ?? '');
+            }
 
-                <p class="text-slate-300 mt-4">
-                    <?php
-                    $cleanText = strip_tags((string)$post['content']);
-                    $preview = mb_strimwidth($cleanText, 0, 220, '...');
-                    echo htmlspecialchars($preview);
-                    ?>
-                </p>
+            $cleanText = strip_tags((string)($post['content'] ?? ''));
+            $preview = mb_strimwidth($cleanText, 0, 220, '...');
+            ?>
+            <article class="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
+                <a href="/posts/<?= (int)$post['id'] ?>" class="block">
+                    <div class="h-56 w-full bg-black/20">
+                        <img
+                                src="<?= htmlspecialchars($img, ENT_QUOTES) ?>"
+                                alt="<?= htmlspecialchars($alt, ENT_QUOTES) ?>"
+                                class="h-56 w-full object-cover object-center"
+                                loading="lazy"
+                                referrerpolicy="no-referrer"
+                                onerror="this.onerror=null;this.src='<?= htmlspecialchars($defaultImg, ENT_QUOTES) ?>';"
+                        >
+                    </div>
+                </a>
+
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold">
+                        <a class="hover:underline" href="/posts/<?= (int)$post['id'] ?>">
+                            <?= htmlspecialchars((string)($post['title'] ?? ''), ENT_QUOTES) ?>
+                        </a>
+                    </h2>
+
+                    <p class="text-sm text-slate-400 mt-2">
+                        <?= htmlspecialchars((string)($post['created_at'] ?? ''), ENT_QUOTES) ?>
+                    </p>
+
+                    <p class="text-slate-300 mt-4">
+                        <?= htmlspecialchars($preview, ENT_QUOTES) ?>
+                    </p>
+                </div>
             </article>
         <?php endforeach; ?>
     </div>

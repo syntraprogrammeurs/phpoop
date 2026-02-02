@@ -13,11 +13,13 @@ require __DIR__ . '/autoload.php';
 use Admin\Controllers\AuthController;
 use Admin\Controllers\DashboardController;
 use Admin\Controllers\ErrorController;
+use Admin\Controllers\MediaController;
 use Admin\Controllers\PostsController;
 use Admin\Controllers\UsersController;
 use Admin\Core\Auth;
 use Admin\Core\Router;
 use Admin\Models\StatsModel;
+use Admin\Repositories\MediaRepository;
 use Admin\Repositories\PostsRepository;
 use Admin\Repositories\RolesRepository;
 use Admin\Repositories\UsersRepository;
@@ -188,6 +190,28 @@ $router->post('/posts/{id}/delete', function (int $id) use ($requireAdmin): void
  */
 $router->get('/posts/{id}', function (int $id): void {
     (new PostsController(PostsRepository::make()))->show($id);
+});
+/**
+ * Media (admin-only)
+ */
+$router->get('/media', function () use ($requireAdmin): void {
+    $requireAdmin();
+    (new MediaController(MediaRepository::make()))->index();
+});
+
+$router->get('/media/upload', function () use ($requireAdmin): void {
+    $requireAdmin();
+    (new MediaController(MediaRepository::make()))->uploadForm();
+});
+
+$router->post('/media/store', function () use ($requireAdmin): void {
+    $requireAdmin();
+    (new MediaController(MediaRepository::make()))->store();
+});
+
+$router->post('/media/{id}/delete', function (int $id) use ($requireAdmin): void {
+    $requireAdmin();
+    (new MediaController(MediaRepository::make()))->delete($id);
 });
 
 $router->dispatch($uri, $method);

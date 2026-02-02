@@ -1,25 +1,15 @@
 <?php
 declare(strict_types=1);
 
-/*
-|--------------------------------------------------------------------------
-| Sidebar navigatie (admin)
-|--------------------------------------------------------------------------
-| - Gebruikt REQUEST_URI om actieve links te tonen
-| - Werkt met ADMIN_BASE_PATH (bv. /admin)
-*/
-
 $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
 $currentPath = rtrim($currentPath, '/') ?: '/';
 
 function isActiveAdmin(string $currentPath, string $targetPath): bool
 {
-    // Exact match
     if ($currentPath === $targetPath) {
         return true;
     }
 
-    // Subroutes matchen (bv. /admin/posts/1/edit hoort bij /admin/posts)
     if ($targetPath !== ADMIN_BASE_PATH && str_starts_with($currentPath, $targetPath . '/')) {
         return true;
     }
@@ -47,6 +37,11 @@ function sidebarLinkClass(bool $active): string
         <a href="<?= ADMIN_BASE_PATH ?>/posts"
            class="<?= sidebarLinkClass(isActiveAdmin($currentPath, ADMIN_BASE_PATH . '/posts')) ?>">
             Posts
+        </a>
+
+        <a href="<?= ADMIN_BASE_PATH ?>/media"
+           class="<?= sidebarLinkClass(isActiveAdmin($currentPath, ADMIN_BASE_PATH . '/media')) ?>">
+            Media
         </a>
 
         <a href="<?= ADMIN_BASE_PATH ?>/users"

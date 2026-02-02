@@ -43,6 +43,8 @@ class View
 
         echo '<main class="flex-1">';
         require __DIR__ . '/../../../includes/topbar.php';
+        require __DIR__ . '/../../../views/partials/flash.php';
+
 
         require $viewPath;
 

@@ -11,6 +11,7 @@ require __DIR__ . '/autoload.php';
 
 use Admin\Controllers\UsersController;
 use Admin\Core\Auth;
+use Admin\Core\Flash;
 use Admin\Core\Router;
 use Admin\Controllers\DashboardController;
 use Admin\Controllers\PostsController;
@@ -155,15 +156,20 @@ $router->get('/posts/{id}/delete', function (int $id): void {
 
     (new PostsController(PostsRepository::make()))->deleteConfirm($id);
 });
-
 $router->post('/posts/{id}/delete', function (int $id): void {
     if (!Auth::isAdmin()) {
+        Flash::set('error', 'Je hebt geen rechten om dit te doen.');
         header('Location: /admin/posts');
         exit;
     }
 
-    (new PostsController(PostsRepository::make()))->delete($id);
+    PostsRepository::make()->delete($id);
+
+    Flash::set('error', 'Post verwijderd.');
+    header('Location: /admin/posts');
+    exit;
 });
+
 
 /**
  * Show

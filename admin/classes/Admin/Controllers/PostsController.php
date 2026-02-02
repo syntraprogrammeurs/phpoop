@@ -3,260 +3,154 @@ declare(strict_types=1);
 
 namespace Admin\Controllers;
 
+use Admin\Core\Flash;
 use Admin\Core\View;
 use Admin\Repositories\PostsRepository;
 
-class PostsController
+final class PostsController
 {
-    private PostsRepository $postsRepository;
-    private string $title = 'Posts';
+    private PostsRepository $posts;
 
-    /**
-     * __construct()
-     *
-     * Doel:
-     * Ontvangt de repository en bewaart die.
-     */
-    public function __construct(PostsRepository $postsRepository)
+    public function __construct(PostsRepository $posts)
     {
-        $this->postsRepository = $postsRepository;
+        $this->posts = $posts;
     }
 
-    /**
-     * index()
-     *
-     * Doel:
-     * Toont het overzicht van posts.
-     */
     public function index(): void
     {
-        $posts = $this->postsRepository->getAll();
-
         View::render('posts.php', [
-            'title' => $this->title,
-            'posts' => $posts,
+            'title' => 'Posts',
+            'posts' => $this->posts->getAll(),
         ]);
     }
 
-    /**
-     * show()
-     *
-     * Doel:
-     * Toont één post.
-     */
-    public function show(int $id): void
-    {
-        $post = $this->postsRepository->find($id);
-
-        if ($post === null) {
-            (new ErrorController())->notFound('/posts/' . $id);
-            return;
-        }
-
-        View::render('post-show.php', [
-            'title' => 'Post #' . $id,
-            'post' => $post,
-        ]);
-    }
-
-    /**
-     * create()
-     *
-     * Doel:
-     * Toont het formulier om een nieuwe post aan te maken.
-     */
     public function create(): void
     {
+        $old = Flash::get('old');
+        if (!is_array($old)) {
+            $old = ['title' => '', 'content' => '', 'status' => 'draft'];
+        }
+
         View::render('post-create.php', [
             'title' => 'Nieuwe post',
-            'errors' => [],
-            'old' => [
-                'title' => '',
-                'content' => '',
-                'status' => 'draft',
-            ],
+            'old' => $old,
         ]);
     }
 
-    /**
-     * store()
-     *
-     * Doel:
-     * Verwerkt het formulier (POST) en slaat de post op.
-     */
     public function store(): void
     {
-        $title = trim((string)($_POST['title'] ?? ''));
+        $title   = trim((string)($_POST['title'] ?? ''));
         $content = trim((string)($_POST['content'] ?? ''));
-        $status = (string)($_POST['status'] ?? 'draft');
+        $status  = (string)($_POST['status'] ?? 'draft');
 
-        $errors = [];
-
-        if ($title === '') {
-            $errors[] = 'Titel is verplicht.';
-        }
-
-        if ($content === '') {
-            $errors[] = 'Inhoud is verplicht.';
-        }
-
-        if (!in_array($status, ['draft', 'published'], true)) {
-            $errors[] = 'Status moet draft of published zijn.';
-        }
+        $errors = $this->validate($title, $content, $status);
 
         if (!empty($errors)) {
-            View::render('post-create.php', [
-                'title' => 'Nieuwe post',
-                'errors' => $errors,
-                'old' => [
-                    'title' => $title,
-                    'content' => $content,
-                    'status' => $status,
-                ],
-            ]);
-            return;
+            Flash::set('warning', $errors);
+            Flash::set('old', compact('title', 'content', 'status'));
+            header('Location: /admin/posts/create');
+            exit;
         }
 
-        $this->postsRepository->create($title, $content, $status);
+        $this->posts->create($title, $content, $status);
 
+        Flash::set('success', 'Post succesvol aangemaakt.');
         header('Location: /admin/posts');
         exit;
     }
 
-    /**
-     * edit()
-     *
-     * Doel:
-     * Toont het edit-formulier met bestaande data.
-     *
-     * Werking:
-     * 1) Haalt de post op via find($id).
-     * 2) Bestaat de post niet? Toon 404.
-     * 3) Bestaat de post wel? Vul old waarden met de bestaande data.
-     */
     public function edit(int $id): void
     {
-        $post = $this->postsRepository->find($id);
+        $post = $this->posts->find($id);
 
-        if ($post === null) {
-            (new ErrorController())->notFound('/posts/' . $id . '/edit');
-            return;
+        if (!$post) {
+            Flash::set('error', 'Post niet gevonden.');
+            header('Location: /admin/posts');
+            exit;
         }
 
-        View::render('post-edit.php', [
-            'title' => 'Post bewerken',
-            'errors' => [],
-            'postId' => $id,
-            'old' => [
+        $old = Flash::get('old');
+        if (!is_array($old)) {
+            $old = [
                 'title' => (string)$post['title'],
                 'content' => (string)$post['content'],
                 'status' => (string)$post['status'],
-            ],
+            ];
+        }
+
+        View::render('post-edit.php', [
+            'title'  => 'Post bewerken',
+            'postId' => $id,
+            'post'   => $post,
+            'old'    => $old,
         ]);
     }
 
-    /**
-     * update()
-     *
-     * Doel:
-     * Verwerkt het edit-formulier (POST) en past de post aan.
-     *
-     * Werking:
-     * 1) Lees input + trim.
-     * 2) Valideer (zelfde regels als store()).
-     * 3) Bij errors: render post-edit.php opnieuw met errors + old input.
-     * 4) Bij succes: repository->update(...)
-     * 5) Redirect naar overzicht.
-     */
     public function update(int $id): void
     {
-        $title = trim((string)($_POST['title'] ?? ''));
+        $post = $this->posts->find($id);
+        if (!$post) {
+            Flash::set('error', 'Post niet gevonden.');
+            header('Location: /admin/posts');
+            exit;
+        }
+
+        $title   = trim((string)($_POST['title'] ?? ''));
         $content = trim((string)($_POST['content'] ?? ''));
-        $status = (string)($_POST['status'] ?? 'draft');
+        $status  = (string)($_POST['status'] ?? 'draft');
 
-        $errors = [];
-
-        if ($title === '') {
-            $errors[] = 'Titel is verplicht.';
-        }
-
-        if ($content === '') {
-            $errors[] = 'Inhoud is verplicht.';
-        }
-
-        if (!in_array($status, ['draft', 'published'], true)) {
-            $errors[] = 'Status moet draft of published zijn.';
-        }
+        $errors = $this->validate($title, $content, $status);
 
         if (!empty($errors)) {
-            View::render('post-edit.php', [
-                'title' => 'Post bewerken',
-                'errors' => $errors,
-                'postId' => $id,
-                'old' => [
-                    'title' => $title,
-                    'content' => $content,
-                    'status' => $status,
-                ],
-            ]);
-            return;
+            Flash::set('warning', $errors);
+            Flash::set('old', compact('title', 'content', 'status'));
+            header('Location: /admin/posts/' . $id . '/edit');
+            exit;
         }
 
-        $this->postsRepository->update($id, $title, $content, $status);
+        $this->posts->update($id, $title, $content, $status);
 
+        Flash::set('success', 'Post succesvol aangepast.');
         header('Location: /admin/posts');
         exit;
     }
-    /**
-     * deleteConfirm()
-     *
-     * Doel:
-     * Toont bevestigingspagina voor verwijderen.
-     *
-     * Werking:
-     * 1) Haal post op via id.
-     * 2) Bestaat die niet? Toon 404.
-     * 3) Bestaat die wel? Render confirm view.
-     */
+
     public function deleteConfirm(int $id): void
     {
-        $post = $this->postsRepository->find($id);
+        $post = $this->posts->find($id);
 
-        if ($post === null) {
-            (new ErrorController())->notFound('/posts/' . $id . '/delete');
-            return;
+        if (!$post) {
+            Flash::set('error', 'Post niet gevonden.');
+            header('Location: /admin/posts');
+            exit;
         }
 
         View::render('post-delete.php', [
             'title' => 'Post verwijderen',
-            'post' => $post,
+            'post'  => $post,
         ]);
     }
 
-    /**
-     * delete()
-     *
-     * Doel:
-     * Verwijdert de post na bevestiging.
-     *
-     * Werking:
-     * 1) Controleer of post bestaat.
-     * 2) delete() via repository.
-     * 3) Redirect naar overzicht.
-     */
-    public function delete(int $id): void
+    private function validate(string $title, string $content, string $status): array
     {
-        $post = $this->postsRepository->find($id);
+        $errors = [];
 
-        if ($post === null) {
-            (new ErrorController())->notFound('/posts/' . $id . '/delete');
-            return;
+        if ($title === '') {
+            $errors[] = 'Titel is verplicht.';
+        } elseif (mb_strlen($title) < 3) {
+            $errors[] = 'Titel moet minstens 3 tekens bevatten.';
         }
 
-        $this->postsRepository->delete($id);
+        if ($content === '') {
+            $errors[] = 'Inhoud is verplicht.';
+        } elseif (mb_strlen($content) < 10) {
+            $errors[] = 'Inhoud moet minstens 10 tekens bevatten.';
+        }
 
-        header('Location: /admin/posts');
-        exit;
+        if (!in_array($status, ['draft', 'published'], true)) {
+            $errors[] = 'Status moet draft of published zijn.';
+        }
+
+        return $errors;
     }
-
 }

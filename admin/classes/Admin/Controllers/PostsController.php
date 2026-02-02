@@ -41,28 +41,66 @@ final class PostsController
 
     public function store(): void
     {
-        $title   = trim((string)($_POST['title'] ?? ''));
-        $content = trim((string)($_POST['content'] ?? ''));
-        $status  = (string)($_POST['status'] ?? 'draft');
-        $featuredRaw = trim((string)($_POST['featured_media_id'] ?? ''));
+        $title = isset($_POST['title']) ? trim((string)$_POST['title']) : '';
+        $content = isset($_POST['content']) ? trim((string)$_POST['content']) : '';
+        $status = isset($_POST['status']) ? (string)$_POST['status'] : 'draft';
 
-        $featuredId = $this->normalizeFeaturedId($featuredRaw);
+        $featuredId = null;
+        if (isset($_POST['featured_media_id']) && $_POST['featured_media_id'] !== '') {
+            $featuredId = (int)$_POST['featured_media_id'];
+        }
 
-        $errors = $this->validate($title, $content, $status, $featuredId);
+        $errors = [];
+
+        if ($title === '') {
+            $errors[] = 'Titel is verplicht.';
+        }
+
+        if ($content === '') {
+            $errors[] = 'Content is verplicht.';
+        }
+
+        if (!in_array($status, ['draft', 'published'], true)) {
+            $errors[] = 'Status is ongeldig.';
+        }
 
         if (!empty($errors)) {
-            Flash::set('warning', $errors);
-            Flash::set('old', compact('title', 'content', 'status') + ['featured_media_id' => $featuredRaw]);
-            header('Location: ' . ADMIN_BASE_PATH . '/posts/create');
+            \Admin\Core\Flash::set('warning', $errors);
+            \Admin\Core\Flash::set('old', [
+                'title' => $title,
+                'content' => $content,
+                'status' => $status,
+                'featured_media_id' => $featuredId,
+            ]);
+
+            header('Location: /admin/posts/create');
             exit;
         }
 
-        $this->posts->create($title, $content, $status, $featuredId);
+        // 1) Post aanmaken (slug nog NULL)
+        $postId = $this->posts->create($title, $content, $status, $featuredId);
 
-        Flash::set('success', 'Post succesvol aangemaakt.');
-        header('Location: ' . ADMIN_BASE_PATH . '/posts');
+        // 2) Base slug genereren
+        $baseSlug = \Admin\Services\SlugService::slugify($title);
+
+        // 3) Uniek maken
+        $slug = $baseSlug;
+        $counter = 2;
+
+        while ($this->posts->slugExists($slug, $postId)) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+        }
+
+        // 4) Slug opslaan
+        $this->posts->updateSlug($postId, $slug);
+
+        \Admin\Core\Flash::set('success', 'Post succesvol aangemaakt.');
+        header('Location: /admin/posts');
         exit;
     }
+
+
 
     public function edit(int $id): void
     {

@@ -55,23 +55,28 @@ switch ($uri) {
 
     default:
         // Detail: /posts/{id}
-        if (preg_match('#^/posts/(\d+)$#', $uri, $matches)) {
+        if (preg_match('#^/posts/([a-z0-9]+(?:-[a-z0-9]+)*)$#', $uri, $matches)) {
+            $slug = (string)$matches[1];
 
-            // id uit regex -> integer
-            $postId = (int)$matches[1];
+            $post = $postsRepository->findPublishedBySlug($slug);
 
-            // Alleen published post ophalen
-            $post = $postsRepository->findPublishedById($postId);
-
-            if (!$post) {
+            if ($post === null) {
                 http_response_code(404);
-                echo '404 - Post niet gevonden';
+                echo '<h1>404 - Post niet gevonden</h1>';
                 exit;
             }
 
+            $title = (string)$post['title'];
+
+            ob_start();
             require __DIR__ . '/views/posts/show.php';
-            break;
+            $content = ob_get_clean();
+
+            require __DIR__ . '/views/layouts/public.php';
+            exit;
         }
+
+
 
         http_response_code(404);
         echo '404 - Pagina niet gevonden';

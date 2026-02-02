@@ -1,76 +1,75 @@
 <?php
 declare(strict_types=1);
 
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', '1');
+/**
+ * Verwacht variabelen:
+ * - $posts (array) van getPublishedLatest()
+ *
+ * Elke $post bevat minstens:
+ * - title
+ * - slug
+ * - created_at
+ * - featured_url (kan null zijn)
+ * - featured_alt
+ */
 
-ob_start();
-
-$defaultImg = 'https://images.unsplash.com/photo-1526481280695-3c687fd5432c?auto=format&fit=crop&w=1400&q=60';
+// fallback afbeelding als er geen featured image is
+$defaultImage = 'https://images.unsplash.com/photo-1522199710521-72d69614c702?auto=format&fit=crop&w=1200&q=60';
 ?>
 
+<section class="max-w-5xl mx-auto px-4 py-10">
     <header class="mb-8">
         <h1 class="text-3xl font-semibold">Laatste posts</h1>
-        <p class="text-slate-300 mt-2">Recente gepubliceerde posts.</p>
+        <p class="text-gray-600 mt-2">De nieuwste gepubliceerde artikels.</p>
     </header>
 
-<?php if (empty($posts)): ?>
-    <div class="rounded-2xl border border-white/10 bg-white/5 p-6 text-slate-300">
-        Nog geen gepubliceerde posts.
-    </div>
-<?php else: ?>
-    <div class="grid md:grid-cols-2 gap-6">
-        <?php foreach ($posts as $post): ?>
-            <?php
-            $img = (string)($post['featured_url'] ?? '');
-            if ($img === '') {
-                $img = $defaultImg;
-            }
+    <?php if (empty($posts)): ?>
+        <div class="bg-white border rounded p-6">
+            <p class="text-gray-700">Er zijn nog geen gepubliceerde posts.</p>
+        </div>
+    <?php else: ?>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <?php foreach ($posts as $post): ?>
+                <?php
+                $slug = htmlspecialchars((string)$post['slug'], ENT_QUOTES);
+                $title = htmlspecialchars((string)$post['title'], ENT_QUOTES);
 
-            $alt = (string)($post['featured_alt'] ?? '');
-            if ($alt === '') {
-                $alt = (string)($post['title'] ?? '');
-            }
+                $imageUrl = $post['featured_url'] !== null && $post['featured_url'] !== ''
+                        ? (string)$post['featured_url']
+                        : $defaultImage;
 
-            $cleanText = strip_tags((string)($post['content'] ?? ''));
-            $preview = mb_strimwidth($cleanText, 0, 140, '...');
-            ?>
-            <article class="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
-                <a href="/posts/<?= (int)$post['id'] ?>" class="block">
-                    <div class="h-56 w-full bg-black/20">
+                $imageAlt = htmlspecialchars((string)($post['featured_alt'] ?? $post['title'] ?? 'Afbeelding'), ENT_QUOTES);
+                ?>
+
+                <article class="bg-white border rounded overflow-hidden">
+                    <a href="/posts/<?php echo $slug; ?>" class="block">
                         <img
-                            src="<?= htmlspecialchars($img, ENT_QUOTES) ?>"
-                            alt="<?= htmlspecialchars($alt, ENT_QUOTES) ?>"
-                            class="h-56 w-full object-cover object-center"
-                            loading="lazy"
-                            referrerpolicy="no-referrer"
-                            onerror="this.onerror=null;this.src='<?= htmlspecialchars($defaultImg, ENT_QUOTES) ?>';"
-                        >
+                                src="<?php echo htmlspecialchars($imageUrl, ENT_QUOTES); ?>"
+                                alt="<?php echo $imageAlt; ?>"
+                                class="w-full h-48 object-cover"
+                                loading="lazy"
+                        />
+                    </a>
+
+                    <div class="p-5">
+                        <h2 class="text-xl font-semibold mb-2">
+                            <a href="/posts/<?php echo $slug; ?>" class="hover:underline">
+                                <?php echo $title; ?>
+                            </a>
+                        </h2>
+
+                        <p class="text-sm text-gray-500">
+                            <?php echo htmlspecialchars((string)($post['created_at'] ?? ''), ENT_QUOTES); ?>
+                        </p>
+
+                        <div class="mt-4">
+                            <a href="/posts/<?php echo $slug; ?>" class="text-blue-700 hover:underline">
+                                Lees meer
+                            </a>
+                        </div>
                     </div>
-                </a>
-
-                <div class="p-6">
-                    <h2 class="text-xl font-semibold">
-                        <a class="hover:underline" href="/posts/<?= (int)$post['id'] ?>">
-                            <?= htmlspecialchars((string)($post['title'] ?? ''), ENT_QUOTES) ?>
-                        </a>
-                    </h2>
-
-                    <p class="text-sm text-slate-400 mt-2">
-                        <?= htmlspecialchars((string)($post['created_at'] ?? ''), ENT_QUOTES) ?>
-                    </p>
-
-                    <p class="text-slate-300 mt-4">
-                        <?= htmlspecialchars($preview, ENT_QUOTES) ?>
-                    </p>
-                </div>
-            </article>
-        <?php endforeach; ?>
-    </div>
-<?php endif; ?>
-
-<?php
-$content = ob_get_clean();
-$title = 'Home';
-require __DIR__ . '/../layouts/public.php';
+                </article>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+</section>
